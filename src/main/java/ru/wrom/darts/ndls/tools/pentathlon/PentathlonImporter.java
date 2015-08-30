@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -91,10 +90,9 @@ public class PentathlonImporter {
 		logger.info("Start with row: {}", startRow);
 
 		for (PentathlonPlayerData playerData : data) {
-			sheet = workbook.getSheet("БР");
-			HSSFRow row = sheet.getRow(startRow);
-			row.createCell(1).setCellValue(playerData.getPlayerName() + " " + simpleDateFormat.format(new Date(playerData.getFile().lastModified())));
-			addPlayerGameData(row, playerData.getBigRound());
+			workbook.getSheet("БР").getRow(startRow).getCell(1, HSSFRow.CREATE_NULL_AS_BLANK).setCellValue(playerData.getPlayerName());
+			workbook.getSheet("Итог").getRow(startRow).getCell(18, HSSFRow.CREATE_NULL_AS_BLANK).setCellValue(new Date(playerData.getFile().lastModified()));
+			addPlayerGameData(workbook.getSheet("БР").getRow(startRow), playerData.getBigRound());
 			addPlayerGameData(workbook.getSheet("Набор").getRow(startRow), playerData.getAllSectors());
 			addPlayerGameData(workbook.getSheet("20").getRow(startRow), playerData.getSector20());
 			addPlayerGameData(workbook.getSheet("Булл").getRow(startRow), playerData.getBull());
@@ -112,11 +110,7 @@ public class PentathlonImporter {
 
 	private void addPlayerGameData(HSSFRow row, List<Integer> gameData) {
 		for (int i = 0; i < gameData.size(); i++) {
-			HSSFCell cell = row.getCell(i + 2);
-			if (cell == null) {
-				cell = row.createCell(i + 2);
-			}
-			cell.setCellValue(gameData.get(i));
+			row.getCell(i + 2, HSSFRow.CREATE_NULL_AS_BLANK).setCellValue(gameData.get(i));
 		}
 	}
 
